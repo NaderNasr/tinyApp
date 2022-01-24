@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/NaderNasr/tinyApp/issues"
   },
-  "homepage": "https://github.com/NaderNasr/tinyApp#readme"
+  "homepage": "https://github.com/NaderNasr/tinyApp#readme",
+  "dependencies": {
+    "express": "^4.17.2"
+  }
 }
