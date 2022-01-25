@@ -57,6 +57,7 @@ app.post('/urls/:shortURL/delete', (req, res) => {
   res.redirect("/urls");
 });
 
+//Modify/Edit current long URL and keep current short URL
 app.post("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   const longURL = req.body.longURL;
