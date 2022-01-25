@@ -43,6 +43,12 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+app.get("/u/:shortURL", (req, res) => {
+  const longURL = urlDatabase[req.params.shortURL];
+  console.log(longURL);
+  res.redirect(longURL);
+});
+
 //Start server on PORT and log to terminal.
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
