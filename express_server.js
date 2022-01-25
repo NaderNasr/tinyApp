@@ -12,13 +12,8 @@ const urlDatabase = {
 };
 
 const generateRandomString = () => {
-  return (Math.random() + 1).toString(36).substring(7);
+  return Math.random().toString(36).substring(7);
 };
-
-//landing page route.
-app.get("/", (req, res) => {
-  res.send("Welcome to tiny app");
-});
 
 //urls_index route to render url database object.
 app.get("/urls", (req, res) => {
@@ -33,8 +28,10 @@ app.get("/urls/new", (req, res) => {
 
 //Post request to create a new tiny url.
 app.post("/urls", (req, res) => {
-  console.log(req.params);
-  res.send(generateRandomString());
+  let shortURL = generateRandomString();
+  let longURL = req.body.longURL;
+  urlDatabase[shortURL] = longURL;
+  res.redirect(`/urls/${shortURL}`);
 });
 
 //Second route to render short and long URL.
