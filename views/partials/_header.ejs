@@ -12,11 +12,21 @@
       </div>
     </div>
     <div>
+    <% if(!username) { %>
+      <form class="form-inline my-2 my-lg-0" method="POST" action="/login">
+        <input class="form-control mr-sm-1" placeholder="username" name="username">
+        <button class="btn btn-success my-2 my-sm-0" name="username" type="submit">
+          Login
+        </button>
+      </form>
+      <% } else { %>
+        <form class="form-inline my-2 my-lg-0" method="POST" action="/logout">
+        <p class="mr-sm-1 mt-3"> <%= greet %>, <%= username %> </p>
+        <button class="btn btn-danger my-2 my-sm-0" name="username" type="submit">
+          Logout
+        </button>
+        <% } %>
+      </form>
     </div>
-    <form class="form-inline my-2 my-lg-0" method="POST" action="/login">
-      <input class="form-control mr-sm-1" placeholder="username" name="username">
-      <button class="btn btn-success my-2 my-sm-0" name="username" type="submit">Login</button>
-    </form>
-
   </nav>
 </header>
