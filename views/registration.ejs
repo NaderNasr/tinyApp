@@ -16,11 +16,13 @@
     <main style="margin: 1em;">
       <h1>Registration</h1>
       <form class="form-inline my-2 my-lg-0" method="POST" action="/register">
-        <input class="form-control mr-sm-1" placeholder="email" name="email" type=email>
-        <input name="password" class="form-control mr-sm-1" placeholder="password" name="password" type=password>
+        <% if(!user) { %>
+          <input class="form-control mr-sm-1" placeholder="email" name="email" type="email">
+        <input name="password" class="form-control mr-sm-1" placeholder="password" name="password" type="password">
         <button class="btn btn-success my-2 my-sm-0" name="password" type="submit">
           Sign up
         </button>
+        <% }%>
       </form>
     </main>
     <!-- Bootstrap JS -->
