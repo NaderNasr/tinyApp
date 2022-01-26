@@ -1,10 +1,12 @@
 const bodyParser = require("body-parser");
 const cookie = require("cookie-parser");
 const express = require("express");
+const morgan = require("morgan");
 const app = express();
 const PORT = 8080;
 
 app.use(cookie());
+app.use(morgan('dev'));
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended: true}));
 
@@ -23,10 +25,30 @@ const greet = () => {
   return greet;
 };
 
+
 //Mock Database
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
+};
+
+//Mock User Database
+const users = {
+  "userRandomID": {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur"
+  },
+  "user2": {
+    id: "user2",
+    email: "user2@example.com",
+    password: "123"
+  }
+};
+
+//Generate random string for userID
+const randomUserID = () => {
+  return Math.random().toString(36).slice(7);
 };
 
 // Generate random string for short URL
@@ -108,6 +130,38 @@ app.post('/logout', (req, res) => {
   res.clearCookie('username');
   res.redirect('/urls');
 });
+
+//User Registration
+app.get('/register', (req, res) => {
+  const templateVars = {
+    shortURL: req.params.shortURL,
+    longURL: urlDatabase[req.params.shortURL],
+    username: req.cookies["username"],
+    greet: greet()
+  };
+  
+  
+  res.render('registration', templateVars);
+});
+
+app.post('/register', (req, res) => {
+  const userId = randomUserID();
+  const email = req.body.email;
+  const password = req.body.password[0];
+  
+  const newUser = {
+    userId,
+    email,
+    password
+  };
+
+  users[userId] = newUser;
+
+  console.log(users);
+  res.redirect('/urls');
+});
+
+
 
 //Start server on PORT and log to terminal.
 app.listen(PORT, () => {
