@@ -29,10 +29,7 @@ const {
 } = require('./databases/mockDatabases');
 
 
-console.log(`XXxxx---URLSFORUSER >>>> ${urlsForUser('userRandomID')}`);
-
 const pleaseLoginMSG = '<h3 style="margin-left: 20px; margin-top: 10px"> Hey Stranger 👋 <br/> Please <a href="/register">Register</a> or <a href="/login">Login</a> to create short url </h3>';
-
 
 
 //if user logged in go to urls if NOT go to login/register page
@@ -52,6 +49,7 @@ app.get("/urls", (req, res) => {
   // console.log('-----------------------------', verifiedUrlToUser(userSession));
   // console.log('-----------------------------', userSession);
   //SHORT URL PUBLIC ?????
+  console.log(urlDatabase);
   if (userSession) {
     const templateVars = {
       user: users[userSession],
@@ -59,9 +57,12 @@ app.get("/urls", (req, res) => {
       greet: greet(),
     };
     res.render("urls_index", templateVars);
+  } else {
+    res.send(pleaseLoginMSG);
   }
-  res.send(pleaseLoginMSG);
+  
 });
+
 
 //Form route
 app.get("/urls/new", (req, res) => {
@@ -83,42 +84,59 @@ app.get("/urls/new", (req, res) => {
 app.post("/urls", (req, res) => {
   const shortURL = generateRandomString();
   const longURL = req.body.longURL;
-  urlDatabase[shortURL] = longURL;
+
+  const urlObject = {
+    longURL,
+    userID: req.session['userId']
+  };
+
+  urlDatabase[shortURL] = urlObject;
+  console.log(urlDatabase);
   res.redirect(`/urls/${shortURL}`);
 });
 
 //Second route to render short and long URL.
 app.get("/urls/:shortURL", (req, res) => {
   const userSession = req.session["userId"];
+  const shortURL = req.params.shortURL;
 
   const templateVars = {
-    shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL],
+    shortURL: shortURL,
+    longURL: urlDatabase[shortURL].longURL,
     username: req.session["username"], //----------------------------
     greet: greet(),
     user: users[userSession]
   };
+  console.log(urlDatabase);
   res.render("urls_show", templateVars);
 });
 
 //
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL].longURL;
-  console.log(longURL);
   res.redirect(longURL);
 });
 
 // Delete a url
 app.post('/urls/:shortURL/delete', (req, res) => {
+  const userSession = req.session["userId"];
+  if (!userSession) {
+    res.send(pleaseLoginMSG);
+  }
   delete urlDatabase[req.params.shortURL];
   res.redirect("/urls");
+  
 });
 
 //Modify/Edit current long URL and keep current short URL
 app.post("/urls/:shortURL", (req, res) => {
+  const userSession = req.session["userId"];
+  if (!userSession) {
+    res.send(pleaseLoginMSG);
+  }
   const shortURL = req.params.shortURL;
   const longURL = req.body.longURL;
-  urlDatabase[shortURL] = longURL;
+  urlDatabase[shortURL].longURL = longURL;
   res.redirect('/urls');
 });
 
