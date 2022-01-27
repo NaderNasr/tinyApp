@@ -10,6 +10,7 @@ app.use(morgan('dev'));
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended: true}));
 
+
 //Login time of day greeting
 const greet = () => {
   let newDate = new Date();
@@ -28,8 +29,16 @@ const greet = () => {
 
 //Mock Database
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  // "b2xVn2": "http://www.lighthouselabs.ca",
+  // "9sm5xK": "http://www.google.com",
+  b6UTxQ: {
+    longURL: "https://www.tsn.com",
+    userID: "user2"
+  },
+  i3BoGr: {
+    longURL: "https://www.google.ca",
+    userID: "userRandomID"
+  }
 };
 
 //Mock User Database
@@ -67,20 +76,57 @@ const findUserByEmail = (email) => {
 };
 
 
+const urlsForUser = (id) => {
+  let verifiedUser = [];
+  for (const key of Object.keys(urlDatabase)) {
+    if (urlDatabase[key].userID === id) {
+      verifiedUser.push(urlDatabase[key].longURL);
+    }
+  }
+  return verifiedUser;
+};
+
+console.log(`XXxxx---URLSFORUSER >>>> ${urlsForUser('userRandomID')}`);
+
+const pleaseLoginMSG = '<h3 style="margin-left: 20px; margin-top: 10px"> Hey Stranger 👋 <br/> Please <a href="/register">Register</a> or <a href="/login">Login</a> to create short url </h3>';
+
+
+
+//if user logged in go to urls if NOT go to login/register page
+app.get("/", (req, res) => {
+  const userSession = req.cookies["userId"];
+  if (userSession) {
+    res.redirect("/urls");
+  } else {
+    res.redirect("/login");
+  }
+});
+
+
 //urls_index route to render url database object.
 app.get("/urls", (req, res) => {
   const userSession = req.cookies["userId"];
-  const templateVars = {
-    urls: urlDatabase,
-    greet: greet(),
-    user: users[userSession]
-  };
-  res.render("urls_index", templateVars);
+  // console.log('-----------------------------', verifiedUrlToUser(userSession));
+  // console.log('-----------------------------', userSession);
+  //SHORT URL PUBLIC ?????
+  if (userSession) {
+    const templateVars = {
+      user: users[userSession],
+      urls: urlsForUser(userSession),
+      greet: greet(),
+    };
+    res.render("urls_index", templateVars);
+  }
+  res.send(pleaseLoginMSG);
 });
 
 //Form route
 app.get("/urls/new", (req, res) => {
   const userSession = req.cookies["userId"];
+
+  if (!userSession) {
+    res.send(pleaseLoginMSG);
+  }
 
   const templateVars = {
     username: req.cookies["username"],
@@ -114,7 +160,7 @@ app.get("/urls/:shortURL", (req, res) => {
 
 //
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
+  const longURL = urlDatabase[req.params.shortURL].longURL;
   console.log(longURL);
   res.redirect(longURL);
 });
@@ -172,7 +218,7 @@ app.get('/login', (req, res) => {
 //logout - remove COOKIE
 app.post('/logout', (req, res) => {
   res.clearCookie('userId');
-  res.redirect('/urls');
+  res.redirect('/');
 });
 
 //User Registration
