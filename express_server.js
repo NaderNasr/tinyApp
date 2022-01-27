@@ -1,6 +1,7 @@
 const bodyParser = require("body-parser");
 const cookie = require("cookie-parser");
 const express = require("express");
+const bcrypt = require('bcryptjs');
 const morgan = require("morgan");
 const app = express();
 const PORT = 8080;
@@ -9,6 +10,11 @@ app.use(cookie());
 app.use(morgan('dev'));
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended: true}));
+
+
+const password = "purple-monkey-dinosaur"; // found in the req.params object
+const hashedPassword = bcrypt.hashSync(password, 10);
+
 
 
 //Login time of day greeting
@@ -186,8 +192,9 @@ app.post('/login', (req, res) => {
   const email = req.body.email;
   const password = req.body.password[0];
   const activeUser = findUserByEmail(email);
+  // const isComparePass = bcrypt.compareSync(password, activeUser.password);
   if (activeUser) {
-    if (password === activeUser.password) {
+    if (bcrypt.compareSync(password, activeUser.password)) {
       const userId = activeUser.id;
       res.cookie('userId', userId);
       res.redirect('/urls');
@@ -209,8 +216,7 @@ app.post('/login', (req, res) => {
 app.get('/login', (req, res) => {
   const userSession = req.cookies["userId"];
   const templateVars = {
-    user: users[userSession],
-    err: req.cookies['err']
+    user: users[userSession]
   };
   res.render('login', templateVars);
 });
@@ -240,18 +246,20 @@ app.post('/register', (req, res) => {
   const password = req.body.password[0];
   // const cookieUserId = req.cookies[userId];
   const user = findUserByEmail(email);
-  if (!email || !password) {
+  const hashedPassword = bcrypt.hashSync(password,10);
+  const isComparedPass = bcrypt.compareSync(password, hashedPassword);
+  // console.log('isComparedPass' ,isComparedPass);
+  if (!email || !isComparedPass) {
     return res.status(400).send("email and/or password can not be blank. Please <a href='/register'>try again</a>");
   }
 
   if (user) {
     return res.status(400).send("A user with that email already exists. Please<a href='/register'>Try again</a>");
   }
-
   users[userId] = {
     id: userId,
     email,
-    password
+    password: hashedPassword
   };
   
   res.cookie("userId", userId);
