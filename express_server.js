@@ -46,10 +46,6 @@ app.get("/", (req, res) => {
 //urls_index route to render url database object.
 app.get("/urls", (req, res) => {
   const userSession = req.session["userId"];
-  // console.log('-----------------------------', verifiedUrlToUser(userSession));
-  // console.log('-----------------------------', userSession);
-  //SHORT URL PUBLIC ?????
-  console.log(urlDatabase);
   if (userSession) {
     const templateVars = {
       user: users[userSession],
@@ -91,7 +87,6 @@ app.post("/urls", (req, res) => {
   };
 
   urlDatabase[shortURL] = urlObject;
-  console.log(urlDatabase);
   res.redirect(`/urls/${shortURL}`);
 });
 
@@ -103,15 +98,14 @@ app.get("/urls/:shortURL", (req, res) => {
   const templateVars = {
     shortURL: shortURL,
     longURL: urlDatabase[shortURL].longURL,
-    username: req.session["username"], //----------------------------
+    username: req.session["username"], 
     greet: greet(),
     user: users[userSession]
   };
-  console.log(urlDatabase);
   res.render("urls_show", templateVars);
 });
 
-//
+
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL].longURL;
   res.redirect(longURL);
@@ -213,10 +207,7 @@ app.post('/register', (req, res) => {
     email,
     password: hashedPassword
   };
-  
   req.session['userId'] = userId;
-
-  console.log(users);
   res.redirect('/urls');
 });
 
