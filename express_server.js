@@ -14,6 +14,7 @@ app.use(cookieSession({
   keys: ['df9c8e16-42ca-46a3-8457-aa83a2e94930', 'dd2f9568-af42-4ccf-abfe-da1f5563d6d0']
 }));
 
+//helper functions
 const {
   urlsForUser,
   findUserByEmail,
@@ -59,7 +60,6 @@ app.get("/urls", (req, res) => {
   
 });
 
-
 //Form route
 app.get("/urls/new", (req, res) => {
   const userSession = req.session["userId"];
@@ -94,11 +94,10 @@ app.post("/urls", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   const userSession = req.session["userId"];
   const shortURL = req.params.shortURL;
-
   const templateVars = {
     shortURL: shortURL,
     longURL: urlDatabase[shortURL].longURL,
-    username: req.session["username"], 
+    username: req.session["username"],
     greet: greet(),
     user: users[userSession]
   };
@@ -134,8 +133,6 @@ app.post("/urls/:shortURL", (req, res) => {
   res.redirect('/urls');
 });
 
-
-
 //Login - COOKIE
 app.post('/login', (req, res) => {
   const email = req.body.email;
@@ -147,13 +144,13 @@ app.post('/login', (req, res) => {
       req.session['userId'] = userId;
       res.redirect('/urls');
     } else {
-      res.status(403).send('Invalid password <a href="/login">try again</a>');
+      res.status(403).send('Invalid password <a href="/login"> Please try again</a>');
     }
   } else {
-    res.status(403).send('no user with that email <a href="/login">try again</a>');
+    res.status(403).send('no user with that email <a href="/login"> Please try again</a>');
   }
   if (!email || !password) {
-    res.status(403).send('Email or password cannot be empty <a href="/login">try again</a>');
+    res.status(403).send('Email or password cannot be empty <a href="/login"> Please try again</a>');
   }
 });
 
@@ -168,7 +165,6 @@ app.get('/login', (req, res) => {
 
 //logout - remove COOKIE
 app.post('/logout', (req, res) => {
-  
   req.session['userId'] = null;
   res.redirect('/');
 });
