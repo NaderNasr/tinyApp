@@ -41,7 +41,7 @@ const users = {
   },
   "user2": {
     id: "user2",
-    email: "user2@example.com",
+    email: "u3@example.com",
     password: "123"
   }
 };
@@ -69,7 +69,7 @@ const findUserByEmail = (email) => {
 
 //urls_index route to render url database object.
 app.get("/urls", (req, res) => {
-  const userSession = req.cookies["user_id"];
+  const userSession = req.cookies["userId"];
   const templateVars = {
     urls: urlDatabase,
     greet: greet(),
@@ -80,30 +80,34 @@ app.get("/urls", (req, res) => {
 
 //Form route
 app.get("/urls/new", (req, res) => {
+  const userSession = req.cookies["userId"];
+
   const templateVars = {
     username: req.cookies["username"],
     greet: greet(),
-    user: req.cookies["user_id"]
+    user: users[userSession]
   };
   res.render("urls_new", templateVars);
 });
 
 //Post request to create a new tiny url.
 app.post("/urls", (req, res) => {
-  let shortURL = generateRandomString();
-  let longURL = req.body.longURL;
+  const shortURL = generateRandomString();
+  const longURL = req.body.longURL;
   urlDatabase[shortURL] = longURL;
   res.redirect(`/urls/${shortURL}`);
 });
 
 //Second route to render short and long URL.
 app.get("/urls/:shortURL", (req, res) => {
+  const userSession = req.cookies["userId"];
+
   const templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL],
     username: req.cookies["username"],
     greet: greet(),
-    user: req.cookies["user_id"]
+    user: users[userSession]
   };
   res.render("urls_show", templateVars);
 });
@@ -129,24 +133,47 @@ app.post("/urls/:shortURL", (req, res) => {
   res.redirect('/urls');
 });
 
+
+
 //Login - COOKIE
 app.post('/login', (req, res) => {
-  const user = req.body.username[0];
-  console.log(`🚔🚔CONSOLE ALERT🚔🚔 ===> ${user}`);
-  
-  res.cookie('user_id', user);
-  res.redirect('/urls');
+  const email = req.body.email;
+  const password = req.body.password[0];
+  const activeUser = findUserByEmail(email);
+  if (activeUser) {
+    if (password === activeUser.password) {
+      const userId = activeUser.id;
+      res.cookie('userId', userId);
+      res.redirect('/urls');
+    } else {
+      res.status(403).send('Invalid password <a href="/login">try again</a>');
+    }
+  } else {
+    res.status(403).send('no user with that email <a href="/login">try again</a>');
+  }
+  if (!email || !password) {
+    res.status(403).send('Email or password cannot be empty <a href="/login">try again</a>');
+  }
+});
+
+//User Login
+app.get('/login', (req, res) => {
+  const userSession = req.cookies["userId"];
+  const templateVars = {
+    user: users[userSession]
+  };
+  res.render('login', templateVars);
 });
 
 //logout - remove COOKIE
 app.post('/logout', (req, res) => {
-  res.clearCookie('user_id');
+  res.clearCookie('userId');
   res.redirect('/urls');
 });
 
 //User Registration
 app.get('/register', (req, res) => {
-  const userSession = req.cookies["user_Id"];
+  const userSession = req.cookies["userId"];
   const templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL],
@@ -154,12 +181,11 @@ app.get('/register', (req, res) => {
     greet: greet()
   };
   
-  
   res.render('registration', templateVars);
 });
 
 app.post('/register', (req, res) => {
-  const user_id = randomUserID();
+  const userId = randomUserID();
   const email = req.body.email;
   const password = req.body.password[0];
   // const cookieUserId = req.cookies[userId];
@@ -173,15 +199,14 @@ app.post('/register', (req, res) => {
     return res.status(400).send("A user with that email already exists. Please<a href='/register'>Try again</a>");
   }
   
-  users[user_id] = {
-    user_id,
+  users[userId] = {
+    userId,
     email,
     password
   };
-
   
-  res.cookie("user_id", user_id);
-  console.log(users[user_id]);
+  res.cookie("userId", userId);
+  console.log(users[userId]);
   res.redirect('/urls');
 });
 
