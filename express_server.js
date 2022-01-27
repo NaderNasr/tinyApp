@@ -146,6 +146,9 @@ app.post('/login', (req, res) => {
       res.cookie('userId', userId);
       res.redirect('/urls');
     } else {
+      // res.cookie('err', 'Invalid password');
+      // res.redirect('/login');
+      //clear cookie
       res.status(403).send('Invalid password <a href="/login">try again</a>');
     }
   } else {
@@ -160,7 +163,8 @@ app.post('/login', (req, res) => {
 app.get('/login', (req, res) => {
   const userSession = req.cookies["userId"];
   const templateVars = {
-    user: users[userSession]
+    user: users[userSession],
+    err: req.cookies['err']
   };
   res.render('login', templateVars);
 });
@@ -190,7 +194,6 @@ app.post('/register', (req, res) => {
   const password = req.body.password[0];
   // const cookieUserId = req.cookies[userId];
   const user = findUserByEmail(email);
-
   if (!email || !password) {
     return res.status(400).send("email and/or password can not be blank. Please <a href='/register'>try again</a>");
   }
@@ -198,15 +201,15 @@ app.post('/register', (req, res) => {
   if (user) {
     return res.status(400).send("A user with that email already exists. Please<a href='/register'>Try again</a>");
   }
-  
+
   users[userId] = {
-    userId,
+    id: userId,
     email,
     password
   };
   
   res.cookie("userId", userId);
-  console.log(users[userId]);
+  console.log(users);
   res.redirect('/urls');
 });
 
