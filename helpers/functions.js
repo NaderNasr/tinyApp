@@ -2,10 +2,10 @@ const { urlDatabase } = require('../databases/mockDatabases');
 
 
 const urlsForUser = (id) => {
-  let verifiedUser = [];
+  let verifiedUser = {};
   for (const key of Object.keys(urlDatabase)) {
     if (urlDatabase[key].userID === id) {
-      verifiedUser.push(urlDatabase[key].longURL);
+      verifiedUser[key] = urlDatabase[key];
     }
   }
   return verifiedUser;
