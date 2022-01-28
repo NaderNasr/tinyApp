@@ -139,7 +139,9 @@ app.post('/login', (req, res) => {
   const email = req.body.email;
   const password = req.body.password[0];
   const activeUser = findUserByEmail(email, users);
+  //if there is an authenticated user
   if (activeUser) {
+    //if the authenticated users passwords match
     if (bcrypt.compareSync(password, activeUser.password)) {
       const userId = activeUser.id;
       req.session['userId'] = userId;
@@ -150,6 +152,7 @@ app.post('/login', (req, res) => {
   } else {
     res.status(403).send('no user with that email <a href="/login"> Please try again</a>');
   }
+  //if email and/or password are not available
   if (!email || !password) {
     res.status(403).send('Email or password cannot be empty <a href="/login"> Please try again</a>');
   }
@@ -192,13 +195,15 @@ app.post('/register', (req, res) => {
   const user = findUserByEmail(email, users);
   const hashedPassword = bcrypt.hashSync(password,10);
   const isComparedPass = bcrypt.compareSync(password, hashedPassword);
+  //check to see if email or password are not available.
   if (!email || !isComparedPass) {
     return res.status(400).send("email and/or password can not be blank. Please <a href='/register'>try again</a>");
   }
-
+  // if email is already in the database.
   if (user) {
     return res.status(400).send("A user with that email already exists. Please<a href='/register'>Try again</a>");
   }
+  // if this is a new user registering.
   users[userId] = {
     id: userId,
     email,
