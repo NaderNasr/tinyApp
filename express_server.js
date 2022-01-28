@@ -199,7 +199,7 @@ app.post('/register', (req, res) => {
   if (!email || !isComparedPass) {
     return res.status(400).send("email and/or password can not be blank. Please <a href='/register'>try again</a>");
   }
-  // if email is already in the database.
+  // if email already exists in the database.
   if (user) {
     return res.status(400).send("A user with that email already exists. Please<a href='/register'>Try again</a>");
   }
