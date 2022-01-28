@@ -134,10 +134,14 @@ app.post("/urls/:shortURL", (req, res) => {
   res.redirect('/urls');
 });
 
-//Login - COOKIE
+//Login
 app.post('/login', (req, res) => {
   const email = req.body.email;
   const password = req.body.password[0];
+  //if email and/or password are not available
+  if (!email || !password) {
+    res.status(403).send('Email or password cannot be empty <a href="/login"> Please try again</a>');
+  }
   const activeUser = findUserByEmail(email, users);
   //if there is an authenticated user
   if (activeUser) {
@@ -152,12 +156,8 @@ app.post('/login', (req, res) => {
   } else {
     res.status(403).send('no user with that email <a href="/login"> Please try again</a>');
   }
-  //if email and/or password are not available
-  if (!email || !password) {
-    res.status(403).send('Email or password cannot be empty <a href="/login"> Please try again</a>');
-  }
+  
 });
-
 //User Login
 app.get('/login', (req, res) => {
   const userSession = req.session["userId"];
