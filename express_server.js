@@ -91,6 +91,9 @@ app.post("/urls", (req, res) => {
 //Second route to render short and long URL.
 app.get("/urls/:shortURL", (req, res) => {
   const userSession = req.session["userId"];
+  if (!userSession) {
+    res.send(pleaseLoginMSG);
+  }
   const shortURL = req.params.shortURL;
   const templateVars = {
     shortURL: shortURL,
