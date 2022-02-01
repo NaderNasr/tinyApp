@@ -192,11 +192,10 @@ app.post('/register', (req, res) => {
   const userId = randomUserID();
   const email = req.body.email;
   const password = req.body.password[0];
-  const user = findUserByEmail(email, users);
   const hashedPassword = bcrypt.hashSync(password,10);
-  const isComparedPass = bcrypt.compareSync(password, hashedPassword);
+  const user = findUserByEmail(email, users);
   //check to see if email or password are not available.
-  if (!email || !isComparedPass) {
+  if (email === '' || password === '') {
     return res.status(400).send("email and/or password can not be blank. Please <a href='/register'>try again</a>");
   }
   // if email already exists in the database.
